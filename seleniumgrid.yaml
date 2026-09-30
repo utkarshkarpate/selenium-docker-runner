@@ -1,0 +1,27 @@
+#this file contains only selenium grid related commands
+version: "3"
+services:
+  hub:
+    image: selenium/hub:4.32
+    environment:
+      - SE_BIND_HOST=false
+  chrome:
+    image: selenium/node-chromium:4.32
+    depends_on:
+      - hub
+    env_file: .env #instead of giving all the env here, we can put it in a .env file and give the path here. This will make the file more readable and maintainable.
+    shm_size: '2g' #this is because, by default, the container has 64MB of shared memory, which is not enough for Chrome to run properly. Increasing the shared memory size to 2GB helps to avoid crashes and improve performance.
+    deploy:
+      replicas: 1 #this will come handy when we run tests in parallel. We can have multiple chrome containers running at the same time, which will allow us to run tests in parallel and reduce the overall execution time.
+  firefox:
+    image: selenium/node-firefox:4.32
+    depends_on:
+      - hub
+    env_file: .env #instead of giving all the env here, we can put it in a .env file and give the path here. This will make the file more readable and maintainable.
+    shm_size: '2g' #this is because, by default, the container has 64MB of shared memory, which is not enough for Chrome to run properly. Increasing the shared memory size to 2GB helps to avoid crashes and improve performance.
+    deploy:
+      replicas: 1
+      #start this using docker-compose -f seleniumgrid.yaml up --scale chrome=2 -d
+
+      #After this we can run our tests using "BROWSER=chrome docker-compose up"
+

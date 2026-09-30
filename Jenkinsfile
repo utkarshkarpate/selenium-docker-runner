@@ -2,15 +2,22 @@ pipeline {
     agent any
 
     stages(){
-        stage('Run-Test'){
+        stage('Start-Grid'){
             steps{
-                bat "docker-compose up" //build the jar
+                bat "docker-compose -f seleniumgrid.yaml up -d"
             }
         }
-        stage('Bring-grid-down'){
+        stage('Run-Test'){
             steps{
-                bat "docker-compose down"
+                bat "docker-compose -f test-suites.yaml up"
             }
+        }
+
+    }
+    post {
+        always {
+            bat "docker-compose -f seleniumgrid.yaml down"
+            bat "docker-compose -f test-suites.yaml down"
         }
     }
 }

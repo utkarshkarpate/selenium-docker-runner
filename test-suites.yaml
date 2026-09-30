@@ -1,0 +1,21 @@
+#using this file, we will give all the configuration to spin up a selenium grid with chrome and firefox nodes. We will also give the configuration to run the test suites in parallel on the selenium grid.
+version: "3"
+services:
+  vendor-portal:
+    image: uk040193/selenium-docker
+    environment:
+      - BROWSER=chrome
+      - HUB_HOST=hub #since the hub and vendor-portal are running in the same container, we don't have to give the ip address now
+      - THREAD_COUNT=3
+      - TEST_SUITE=vendor-portal
+    volumes:
+      - C:\Users\u1127187\AutomationFrameworkDocker\reports-docker\vendor-portal:/home/selenium-docker/test-output
+  flight-reservation:
+    image: uk040193/selenium-docker
+    environment:
+      - BROWSER=firefox
+      - HUB_HOST=hub #since the hub and vendor-portal are running in the same container, we don't have to give the ip address now
+      - THREAD_COUNT=3
+      - TEST_SUITE=flight-reservation
+    volumes:
+      - C:\Users\u1127187\AutomationFrameworkDocker\reports-docker\flight-reservation:/home/selenium-docker/test-output
