@@ -18,4 +18,4 @@ services:
       - THREAD_COUNT=3
       - TEST_SUITE=flight-reservation
     volumes:
-      - C:\Users\u1127187\AutomationFrameworkDocker\reports-docker\flight-reservation:/home/selenium-docker/test-output
+      - ./output/vendor-portal:/home/selenium-docker/test-output
