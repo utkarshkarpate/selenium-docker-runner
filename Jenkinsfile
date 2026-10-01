@@ -18,10 +18,15 @@ pipeline {
         always {
             bat "docker-compose -f seleniumgrid.yaml down"
             bat "docker-compose -f test-suites.yaml down"
-            archiveArtifacts artifacts: 'output/flight-reservation/emailable-report.html', followSymlinks: false
-            archiveArtifacts artifacts: 'output/vendor-portal/emailable-report.html', followSymlinks: false
+            archiveArtifacts artifacts: 'output/**', followSymlinks: false
+            archiveArtifacts artifacts: 'output/**', followSymlinks: false
+            /*with the archive step, we will start viewing the report in jenkins UI as well now
+            but when we try to open the html link, we will not be able to view the report
+            as we were viewign it in our local. to solve that, we will use
+                environment:
+      - JAVA_OPTS="-DHudson.model.DirectoryBrowserSupport.CSP="
 
-            /*with the archive step, we will start viewing the report in jenkins UI as well now*/
+      in our docker compose file for jenkins and restart jenkins*/
         }
     }
 }
