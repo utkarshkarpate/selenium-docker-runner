@@ -20,6 +20,8 @@ pipeline {
             bat "docker-compose -f test-suites.yaml down"
             archiveArtifacts artifacts: 'output/flight-reservation/emailable-report.html', followSymlinks: false
             archiveArtifacts artifacts: 'output/vendor-portal/emailable-report.html', followSymlinks: false
+
+            /*with the archive step, we will start viewing the report in jenkins UI as well now*/
         }
     }
 }
