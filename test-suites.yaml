@@ -4,7 +4,7 @@ services:
   vendor-portal:
     image: uk040193/selenium-docker
     environment:
-      - BROWSER=chrome
+      - BROWSER
       - HUB_HOST=hub #since the hub and vendor-portal are running in the same container, we don't have to give the ip address now
       - THREAD_COUNT=3
       - TEST_SUITE=vendor-portal
@@ -13,7 +13,7 @@ services:
   flight-reservation:
     image: uk040193/selenium-docker
     environment:
-      - BROWSER=firefox
+      - BROWSER
       - HUB_HOST=hub #since the hub and vendor-portal are running in the same container, we don't have to give the ip address now
       - THREAD_COUNT=3
       - TEST_SUITE=flight-reservation

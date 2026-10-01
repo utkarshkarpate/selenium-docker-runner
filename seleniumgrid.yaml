@@ -12,7 +12,8 @@ services:
     env_file: .env #instead of giving all the env here, we can put it in a .env file and give the path here. This will make the file more readable and maintainable.
     shm_size: '2g' #this is because, by default, the container has 64MB of shared memory, which is not enough for Chrome to run properly. Increasing the shared memory size to 2GB helps to avoid crashes and improve performance.
     deploy:
-      replicas: 5 #this will come handy when we run tests in parallel. We can have multiple chrome containers running at the same time, which will allow us to run tests in parallel and reduce the overall execution time.
+      replicas: 0 #this will come handy when we run tests in parallel. We can have multiple chrome containers running at the same time, which will allow us to run tests in parallel and reduce the overall execution time.
+      #based on the browser we select in jenkins which we have set in parameters, we will scale the browser
   firefox:
     image: selenium/node-firefox:4.32
     depends_on:
@@ -20,7 +21,8 @@ services:
     env_file: .env #instead of giving all the env here, we can put it in a .env file and give the path here. This will make the file more readable and maintainable.
     shm_size: '2g' #this is because, by default, the container has 64MB of shared memory, which is not enough for Chrome to run properly. Increasing the shared memory size to 2GB helps to avoid crashes and improve performance.
     deploy:
-      replicas: 5
+      replicas: 0
+      #based on the browser we select in jenkins which we have set in parameters, we will scale the browser
       #start this using docker-compose -f seleniumgrid.yaml up --scale chrome=2 -d
 
       #After this we can run our tests using "BROWSER=chrome docker-compose up"
