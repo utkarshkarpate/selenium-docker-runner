@@ -1,21 +1,13 @@
-#using this file, we will give all the configuration to spin up a selenium grid with chrome and firefox nodes. We will also give the configuration to run the test suites in parallel on the selenium grid.
+# One reusable service. Jenkins sets TEST_SUITE before each docker-compose run.
+# ${TEST_SUITE:-placeholder} stops pull/down from warning when no suite is selected.
 version: "3"
 services:
-  vendor-portal:
+  test:
     image: uk040193/selenium-docker
     environment:
       - BROWSER
-      - HUB_HOST=hub #since the hub and vendor-portal are running in the same container, we don't have to give the ip address now
+      - HUB_HOST=hub
       - THREAD_COUNT=3
-      - TEST_SUITE
+      - TEST_SUITE=${TEST_SUITE:-placeholder}
     volumes:
-      - ./output/${TEST_SUITE}:/home/selenium-docker/test-output
-#  flight-reservation:
-#    image: uk040193/selenium-docker
-#    environment:
-#      - BROWSER
-#      - HUB_HOST=hub #since the hub and vendor-portal are running in the same container, we don't have to give the ip address now
-#      - THREAD_COUNT=3
-#      - TEST_SUITE
-#    volumes:
-#      - ./output/flight-reservation:/home/selenium-docker/test-output
+      - ./output/${TEST_SUITE:-placeholder}:/home/selenium-docker/test-output

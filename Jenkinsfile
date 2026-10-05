@@ -39,11 +39,11 @@ flight-reservation''',
                         batch.each { name ->
                             def suite = name
                             branches[suite] = {
-                                def status = bat(returnStatus: true, script: """
-                                    set BROWSER=${params.BROWSER}
-                                    set TEST_SUITE=${suite}
-                                    docker-compose -f test-suites.yaml run --rm --name suite-${suite} test
-                                """)
+                                def status = 1
+                                // Compose reads TEST_SUITE from the process environment when it loads the file.
+                                withEnv(["BROWSER=${params.BROWSER}", "TEST_SUITE=${suite}"]) {
+                                    status = bat(returnStatus: true, script: "docker-compose -f test-suites.yaml run --rm --name suite-${suite} test")
+                                }
                                 return status == 0 ? '' : suite
                             }
                         }
