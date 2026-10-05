@@ -8,6 +8,10 @@ pipeline {
         From the second time, we will start getting Build With Paramaters option in Jenkins for our job
         We can also paramterise thread count in our case if we want
         */
+
+        choice choices: ['vendor-portal, flight-reservation'], description: 'select test suite to run', name: 'test-suites'
+
+
     }
 
     /*this will add the option to select browser when we are building the job in jenkins. we can select the browser and run the test in that browser
@@ -26,7 +30,7 @@ pipeline {
         }
         stage('Run-Test'){
             steps{
-                bat "docker-compose -f test-suites.yaml up --pull=always"
+                bat "docker-compose -f test-suites.yaml up ${params.test-suites}='vendor-portal.xml' --pull=always"
 
                 /*--pull=always will ensure that we are pulling the latest image from docker hub always*/
 

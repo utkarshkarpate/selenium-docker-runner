@@ -7,7 +7,7 @@ services:
       - BROWSER
       - HUB_HOST=hub #since the hub and vendor-portal are running in the same container, we don't have to give the ip address now
       - THREAD_COUNT=3
-      - TEST_SUITE=vendor-portal
+      - TEST_SUITE
     volumes:
       - ./output/vendor-portal:/home/selenium-docker/test-output
   flight-reservation:
@@ -16,6 +16,6 @@ services:
       - BROWSER
       - HUB_HOST=hub #since the hub and vendor-portal are running in the same container, we don't have to give the ip address now
       - THREAD_COUNT=3
-      - TEST_SUITE=flight-reservation
+      - TEST_SUITE
     volumes:
       - ./output/flight-reservation:/home/selenium-docker/test-output
