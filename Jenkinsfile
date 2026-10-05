@@ -5,40 +5,57 @@ pipeline {
         /*
         By default when we run for the first time, jenkins will pick up the first value in the parameters
         That is the reason when we pushed the code to github and did build now, our tests ran in chrome
-        From the second time, we will start getting Build With Paramaters option in Jenkins for our job
-        We can also paramterise thread count in our case if we want
+        From the second time, we will start getting Build With Parameters option in Jenkins for our job
+        We can also parameterise thread count in our case if we want
         */
 
-        string defaultValue: 'vendor-portal, flight-reservation', description: 'Test-suites to run', name: 'Test-Suites', trim: true
+        text(
+            name: 'TEST_SUITES',
+            defaultValue: '''vendor-portal
+flight-reservation''',
+            description: 'One suite name per line'
+        )
     }
 
-    /*this will add the option to select browser when we are building the job in jenkins. we can select the browser and run the test in that browser
-    Jenkins gives this syntax by going to the job->pipeline syntax->Generate Declarative Generator
-    These paramaters are applicable for all the stages {
-    We cannot change it in any other stage now.post {
-    THis is the biggest difference between these env variables and the one which we set using envrionment
-        }
-    }*/
-
-    stages(){
-        stage('Start-Grid'){
-            steps{
-                bat "docker-compose -f seleniumgrid.yaml up --scale ${params.BROWSER}=2 -d" //based of the browser we select, we will scale it using params.BROWSER
+    stages {
+        stage('Start-Grid') {
+            steps {
+                bat "docker-compose -f seleniumgrid.yaml up --scale ${params.BROWSER}=2 -d"
             }
         }
-        stage('Run-Test'){
-            steps{
-                bat "docker-compose -f test-suites.yaml up --pull=always --env TEST-SUITES=${params.Test-Suites}"
+        stage('Run-Test') {
+            steps {
+                bat "docker-compose -f test-suites.yaml pull"
+                script {
+                    def suites = params.TEST_SUITES
+                        .split(/[\r\n,]+/)
+                        .collect { it.trim() }
+                        .findAll { it }
 
-                /*--pull=always will ensure that we are pulling the latest image from docker hub always*/
+                    def failed = []
+                    // Run a few containers at a time so they fit the grid (2 nodes x 5 sessions).
+                    suites.collate(4).each { batch ->
+                        def branches = [:]
+                        batch.each { name ->
+                            def suite = name
+                            branches[suite] = {
+                                def status = bat(returnStatus: true, script: """
+                                    set BROWSER=${params.BROWSER}
+                                    set TEST_SUITE=${suite}
+                                    docker-compose -f test-suites.yaml run --rm --name suite-${suite} test
+                                """)
+                                return status == 0 ? '' : suite
+                            }
+                        }
+                        def results = parallel branches
+                        failed.addAll(results.values().findAll { it })
+                    }
 
-                /*When we run the test with this approach, we will notice that our stage in jenkins
-        shows success. When we go to volumes->node-><our job>->output->vendor-portal, we will
-        notice that there is a failed testng xml file. We will use that file existence and
-        write the status as Success or failed in jenkins*/
-                script{
+                    if (failed) {
+                        error("Failed suites: ${failed.join(', ')}")
+                    }
+
                     // TestNG writes testng-failed.xml in a suite folder when that suite has failures.
-                    // dir searches every child folder under output. Exit code 0 means the file was found.
                     def failedReport = bat(returnStatus: true, script: 'dir /s /b output\\testng-failed.xml >nul 2>&1')
                     if (failedReport == 0) {
                         error("TestNG failed xml file exists, marking build as failed")
@@ -46,19 +63,21 @@ pipeline {
                 }
             }
         }
-
-
-
     }
     post {
         always {
             bat "docker-compose -f seleniumgrid.yaml down"
             bat "docker-compose -f test-suites.yaml down"
-            // Copy the reports to the job root so Archived Artifacts shows the HTML links,
-            // not the output folder and its css/js files.
-            bat "copy /Y output\\flight-reservation\\emailable-report.html flight-reservation-report.html"
-            bat "copy /Y output\\vendor-portal\\emailable-report.html vendor-portal-report.html"
-            archiveArtifacts artifacts: 'flight-reservation-report.html, vendor-portal-report.html', followSymlinks: false
+            script {
+                def suites = params.TEST_SUITES
+                    .split(/[\r\n,]+/)
+                    .collect { it.trim() }
+                    .findAll { it }
+                suites.each { suite ->
+                    bat "if exist output\\${suite}\\emailable-report.html copy /Y output\\${suite}\\emailable-report.html ${suite}-report.html"
+                }
+            }
+            archiveArtifacts artifacts: '*-report.html', allowEmptyArchive: true, followSymlinks: false
             /* Opening these links needs the Jenkins CSP option:
                 JAVA_OPTS=-Dhudson.model.DirectoryBrowserSupport.CSP=
                in jenkins-ci-cd/docker-compose.yaml */
