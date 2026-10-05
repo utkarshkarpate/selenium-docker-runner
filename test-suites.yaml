@@ -9,13 +9,13 @@ services:
       - THREAD_COUNT=3
       - TEST_SUITE
     volumes:
-      - ./output/vendor-portal:/home/selenium-docker/test-output
-  flight-reservation:
-    image: uk040193/selenium-docker
-    environment:
-      - BROWSER
-      - HUB_HOST=hub #since the hub and vendor-portal are running in the same container, we don't have to give the ip address now
-      - THREAD_COUNT=3
-      - TEST_SUITE
-    volumes:
-      - ./output/flight-reservation:/home/selenium-docker/test-output
+      - ./output/${TEST_SUITE}:/home/selenium-docker/test-output
+#  flight-reservation:
+#    image: uk040193/selenium-docker
+#    environment:
+#      - BROWSER
+#      - HUB_HOST=hub #since the hub and vendor-portal are running in the same container, we don't have to give the ip address now
+#      - THREAD_COUNT=3
+#      - TEST_SUITE
+#    volumes:
+#      - ./output/flight-reservation:/home/selenium-docker/test-output
