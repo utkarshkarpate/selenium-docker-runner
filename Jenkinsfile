@@ -9,9 +9,7 @@ pipeline {
         We can also paramterise thread count in our case if we want
         */
 
-        /*choice choices: ['vendor-portal', 'flight-reservation'], description: 'select test suite to run', name: 'test-suites'*/
-
-
+        string defaultValue: 'vendor-portal, flight-reservation', description: 'Test-suites to run', name: 'Test-Suites', trim: true
     }
 
     /*this will add the option to select browser when we are building the job in jenkins. we can select the browser and run the test in that browser
@@ -30,7 +28,7 @@ pipeline {
         }
         stage('Run-Test'){
             steps{
-                bat "docker-compose -f test-suites.yaml up --pull=always"
+                bat "docker-compose -f test-suites.yaml up --pull=always --env TEST-SUITES=${params.Test-Suites}"
 
                 /*--pull=always will ensure that we are pulling the latest image from docker hub always*/
 
