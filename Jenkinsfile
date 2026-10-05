@@ -26,9 +26,24 @@ pipeline {
         }
         stage('Run-Test'){
             steps{
-                bat "docker-compose -f test-suites.yaml up"
+                bat "docker-compose -f test-suites.yaml up --pull=always"
+
+                /*--pull=always will ensure that we are pulling the latest image from docker hub always*/
+
+                /*When we run the test with this approach, we will notice that our stage in jenkins
+        shows success. When we go to volumes->node-><our job>->output->vendor-portal, we will
+        notice that there is a failed testng xml file. We will use that file existence and
+        write the status as Success or failed in jenkins*/
+                script{
+                    if(fileExists('output\\vendor-portal\\testng-failed.xml') || fileExists('output\\flight-reservation\\testng-failed.xml')){
+                        error("TestNG failed xml file exists, marking build as failed")
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
             }
         }
+
+
 
     }
     post {
