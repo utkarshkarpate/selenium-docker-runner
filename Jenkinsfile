@@ -9,7 +9,7 @@ pipeline {
         We can also paramterise thread count in our case if we want
         */
 
-        choice choices: ['vendor-portal, flight-reservation'], description: 'select test suite to run', name: 'test-suites'
+        /*choice choices: ['vendor-portal', 'flight-reservation'], description: 'select test suite to run', name: 'test-suites'*/
 
 
     }
@@ -30,7 +30,7 @@ pipeline {
         }
         stage('Run-Test'){
             steps{
-                bat "docker-compose -f test-suites.yaml up ${params.test-suites}='vendor-portal.xml' --pull=always"
+                bat "docker-compose -f test-suites.yaml up --pull=always"
 
                 /*--pull=always will ensure that we are pulling the latest image from docker hub always*/
 
