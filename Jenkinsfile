@@ -35,9 +35,11 @@ pipeline {
         notice that there is a failed testng xml file. We will use that file existence and
         write the status as Success or failed in jenkins*/
                 script{
-                    if(fileExists('output\\vendor-portal\\testng-failed.xml') || fileExists('output\\flight-reservation\\testng-failed.xml')){
+                    // TestNG writes testng-failed.xml in a suite folder when that suite has failures.
+                    // dir searches every child folder under output. Exit code 0 means the file was found.
+                    def failedReport = bat(returnStatus: true, script: 'dir /s /b output\\testng-failed.xml >nul 2>&1')
+                    if (failedReport == 0) {
                         error("TestNG failed xml file exists, marking build as failed")
-                        currentBuild.result = 'FAILURE'
                     }
                 }
             }
